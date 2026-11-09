@@ -473,6 +473,9 @@
   .bp-now{font-size:.64rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#04101f;
     background:linear-gradient(135deg,var(--accent),var(--accent-2));padding:3px 9px;border-radius:999px}
   .bp-note{color:var(--faint);font-size:.76rem;margin:14px 2px 0;line-height:1.5}
+  .bp-togo{margin-top:8px;font-family:var(--fmono);font-size:.76rem;color:var(--accent-2);font-weight:500}
+  .nm-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .nm-sub{font-family:var(--fmono);font-size:.74rem;color:var(--accent-2)}
   /* device selector + login + session banner */
   .devsel{appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:var(--surface);
     color:var(--muted);border-radius:9px;padding:6px 9px;font-family:var(--fdisplay);font-weight:600;
@@ -810,7 +813,7 @@
   <section id="view-blueprint" hidden>
     <div class="sess-head"><button class="back" data-go="home">← Class</button><span class="eyebrow" style="margin-left:auto">Career blueprint</span></div>
     <h1 style="font-size:1.4rem;margin:6px 2px 2px;text-shadow:0 0 20px var(--glow)">Where this takes you</h1>
-    <p style="color:var(--muted);font-size:.9rem;margin:2px 2px 0">Each rung lights up as you finish the phases behind it. Timeframes assume your 15-minutes-a-day pace; the salary ranges are rough Northern-Virginia estimates and vary a lot.</p>
+    <p style="color:var(--muted);font-size:.9rem;margin:2px 2px 0">Each rung lights up as you finish the lessons behind it. The <b>lessons-to-go</b> number under each is the real one — go as fast as you like, the weeks are chapters, not deadlines. The month labels just assume ~1 lesson a day; move quicker and you arrive sooner. Salary ranges are rough Northern-Virginia estimates and vary a lot.</p>
     <div class="ladder" id="bpLadder"></div>
     <p class="bp-note">Estimates only — real pay depends on the employer, your experience, and how your HVAC and building background stacks on top of new skills.</p>
   </section>
@@ -971,7 +974,7 @@
   function td(dt){dt=dt||new Date();return dt.getFullYear()+"-"+(dt.getMonth()+1)+"-"+dt.getDate();}
   function yd(){var d=new Date();d.setDate(d.getDate()-1);return td(d);}
   function load(){try{var r=localStorage.getItem("codeschool2");if(r){S=JSON.parse(r);return;}}catch(e){LS=false;}
-    S={week:0,day:1,done:0,streak:0,last:null,cleared:0,xp:0,forgeStep:0,forgeWin:false,loggedIn:false,theme:null,device:null};}
+    S={week:0,day:1,done:0,streak:0,last:null,cleared:0,xp:0,forgeStep:0,forgeWin:false,loggedIn:false,theme:null,device:null,hist:[]};}
   function save(){try{localStorage.setItem("codeschool2",JSON.stringify(S));}catch(e){LS=false;}
     if(cloud&&sbUser){clearTimeout(syncT);syncT=setTimeout(cloudPush,900);}}
   load();
@@ -1072,7 +1075,10 @@
     var li=levelInfo(); $("#stLevel").textContent="Lv "+li.L; $("#stLevel").nextElementSibling.textContent=li.rank;
     var nm=nextMilestone(),el=$("#nextMs");
     el.hidden=false;
-    el.innerHTML='<span class="lbl">Next milestone</span><b>'+nm.name+'</b><button class="go2" id="nmGo">Blueprint →</button>';
+    var sub=nm.summit?"All milestones reached — it's your call now":estText(nm);
+    el.innerHTML='<div class="nm-main"><span class="lbl">Next milestone</span><b>'+nm.name+'</b></div>'+
+      '<span class="nm-sub">'+sub+'</span>'+
+      '<button class="go2" id="nmGo">Blueprint →</button>';
     $("#nmGo").addEventListener("click",function(){renderBlueprint();show("blueprint");});
   }
 
@@ -1110,7 +1116,7 @@
     if(S.day<dmax){S.day++;} else if(S.week<56){S.day=1;S.week++;}
     var t=td();
     if(S.last!==t){S.streak=(S.last===yd())?S.streak+1:1;S.last=t;}
-    save(); addXp(20); stopT();
+    recordDone(); save(); addXp(20); stopT();
     $("#doneMsg").textContent="+20 XP · streak "+S.streak+" day"+(S.streak===1?"":"s")+". Next up — W"+S.week+" · D"+S.day+".";
     $("#sessWork").hidden=true; $("#sessDone").hidden=false; scrollTo(0,0);
     renderHome();
@@ -1484,6 +1490,17 @@
   ];
   function msReached(thru){return sessionsBefore(S.week,S.day) >= sessionsBefore(thru,5)+1;}
   function nextMilestone(){for(var i=0;i<LADDER.length;i++){if(!msReached(LADDER[i].thru))return LADDER[i];}return {name:"Run your own thing",summit:true};}
+  // ---- lessons-based progress (honest number) + a soft pace estimate ----
+  function epday(){return Math.floor(Date.now()/864e5);}
+  function recordDone(){ if(!S.hist)S.hist=[]; S.hist.push(epday()); if(S.hist.length>90)S.hist=S.hist.slice(-90); }
+  function curLessons(){return sessionsBefore(S.week,S.day);}
+  function lessonsTo(m){ if(!m||m.summit)return 0; return Math.max(0,(sessionsBefore(m.thru,5)+1)-curLessons()); }
+  function pace7(){ if(!S.hist||!S.hist.length)return 0; var c=epday(),n=0; for(var i=0;i<S.hist.length;i++)if(c-S.hist[i]<7)n++; return n/7; }
+  function estText(m){ var togo=lessonsTo(m); if(togo<=0)return "";
+    var base=togo+" lesson"+(togo===1?"":"s")+" to go"; var p=pace7();
+    if(p<=0||!S.hist||S.hist.length<3)return base;
+    var days=Math.ceil(togo/p), d=days<=1?"about a day":(days<14?("~"+days+" days"):("~"+Math.round(days/7)+" weeks"));
+    return base+" · "+d+" at your pace"; }
   function rungHtml(m,state,n){
     var dotcls="bp-dot"+(state==="done"?" done":state==="current"?" current":"");
     var tags="";
@@ -1495,6 +1512,7 @@
       (state==="current"?'<span class="bp-now">You’re here</span>':'')+
       '<span class="bp-when">'+m.when+'</span></div>'+
       '<div class="bp-detail">'+m.detail+'</div>'+
+      (state!=="done"?'<div class="bp-togo">'+estText(m)+'</div>':'')+
       (tags?'<div class="bp-tags">'+tags+'</div>':'')+'</div></div>';
   }
   function renderBlueprint(){
@@ -1512,7 +1530,7 @@
 
   /* ===== reset ===== */
   $("#resetBtn").addEventListener("click",function(){
-    S={week:0,day:1,done:0,streak:0,last:null,cleared:S.cleared,xp:S.xp,forgeStep:0,forgeWin:false,loggedIn:true,theme:S.theme,device:S.device};
+    S={week:0,day:1,done:0,streak:0,last:null,cleared:S.cleared,xp:S.xp,forgeStep:0,forgeWin:false,loggedIn:true,theme:S.theme,device:S.device,hist:[]};
     save();renderHome();show("home");toast("Progress reset to Week 0");
   });
 
