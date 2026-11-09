@@ -1010,8 +1010,8 @@
   // Paste your Supabase project URL + anon (publishable) key to turn on real
   // login and cross-device progress. Blank = local-only demo (this device only).
   // The anon key is SAFE in front-end code — Row Level Security protects the data.
-  var SB_URL="";   // e.g. "https://YOURPROJECT.supabase.co"
-  var SB_KEY="";   // your anon / publishable key
+  var SB_URL="https://hpgwwegjsxyxovdattoc.supabase.co";   // NAG project (paid plan)
+  var SB_KEY="sb_publishable_D2PqYQoJjZ8koEM9NPvmeg_KB_Wa66H";   // NAG anon/publishable key — same project as the Gemini function
   var sb=null, cloud=false, sbUser=null, syncT=null, authMode="in";
   function cloudReady(){return !!(SB_URL&&SB_KEY&&window.supabase&&window.supabase.createClient);}
   function cloudPush(){ if(!cloud||!sbUser||!sb)return;
