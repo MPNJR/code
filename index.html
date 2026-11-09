@@ -210,7 +210,19 @@
   .seg .hint{color:var(--muted);font-size:.85rem;margin-top:6px}
 
   .flash{perspective:1000px}
-  .flash .inner{position:relative;min-height:116px;border-radius:12px;cursor:pointer;
+  .wspick{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .wslbl{font-size:.78rem;color:var(--muted);font-family:var(--fdisplay);font-weight:600}
+  .wsbtn{border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);border-radius:9px;
+    padding:6px 11px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:var(--fdisplay)}
+  .wsbtn.on{color:#04101f;border-color:transparent;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+  .wsbtn:not(.on):hover{border-color:var(--accent);color:var(--accent-ink)}
+  #wsHint{color:var(--accent-2)!important}
+  .timerpill{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+    display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--accent);
+    border-radius:999px;padding:9px 16px;cursor:pointer;z-index:35;box-shadow:0 8px 24px var(--glow)}
+  .timerpill #pillTime{font-weight:600;font-size:1.02rem;color:var(--accent-ink)}
+  .timerpill .pilllabel{font-size:.74rem;color:var(--muted);font-weight:600;font-family:var(--fdisplay)}
+  .flash .inner{position:relative;min-height:150px;border-radius:12px;cursor:pointer;
     transition:transform .5s;transform-style:preserve-3d}
   .flash.flipped .inner{transform:rotateY(180deg)}
   .flash .face{position:absolute;inset:0;backface-visibility:hidden;display:grid;
@@ -220,7 +232,8 @@
   .flash .face.b{transform:rotateY(180deg);
     background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 20%,var(--surface-2)),var(--surface-2));
     border-color:var(--accent)}
-  .flash .face.b .a{font-size:.96rem;color:var(--accent-ink);font-weight:500}
+  .flash .face.b{align-content:center;overflow:auto}
+  .flash .face.b .a{font-size:.9rem;line-height:1.5;color:var(--accent-ink);font-weight:500;text-align:left}
   .flash .tap{position:absolute;bottom:8px;left:0;right:0;text-align:center;
     font-size:.66rem;color:var(--faint);letter-spacing:.06em}
   .flash-ctrl{display:flex;align-items:center;gap:10px;margin-top:10px}
@@ -682,6 +695,11 @@
       <div class="card seg">
         <div class="shead"><span class="n">3</span><h3>Hands-on</h3><span class="tm">5 min · do</span></div>
         <p id="segDo">—</p>
+        <div class="wspick"><span class="wslbl">Work in:</span>
+          <button class="wsbtn" data-ws="practice">Practice tab</button>
+          <button class="wsbtn" data-ws="vscode">My editor (VS Code)</button>
+        </div>
+        <p class="hint" id="wsHint"></p>
         <p class="hint">Type it yourself — no copy-paste. Break it, then fix it.</p>
       </div>
 
@@ -819,6 +837,7 @@
   </section>
 </main>
 
+<button class="timerpill" id="timerPill" hidden><span class="mono" id="pillTime">15:00</span><span class="pilllabel" id="pillLabel">tap to return</span></button>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -931,7 +950,34 @@
       doit:isFri?"Take the quiz, then build the Friday exercise.":"Apply it to a short exercise in your week-"+w+" folder."};
   }
 
-  var CARDS=[["&lt;p&gt;","a paragraph"],["href","the address a link points to"],["===","is exactly equal to? (JS)"],[".card { }","style for every element with class “card”"],["const","a value that won't be reassigned"],["&lt;div&gt;","a generic block box"],["padding","space inside an element, before the border"],["querySelector","grab the first element matching a selector"],["localStorage","saves small data in this browser"],["Supabase","your hosted database + login back end"],[".map()","turn each item in a list into something new"],["GitHub Pages","free hosting that serves index.html"],["RLS","Supabase row-level security: who may touch which rows"],["await","wait for an async call to finish"]];
+  // [front, back, level] — level gates which cards show by where you are, and
+  // each back explains from scratch so no card assumes knowledge you don't have yet.
+  var CARDS=[
+    ["&lt;p&gt;","A paragraph. In HTML, <p> wraps a block of text, and the browser automatically adds a little space above and below it so paragraphs stack neatly down the page.",1],
+    ["&lt;div&gt;","A generic container box with no meaning of its own. You wrap other elements in a <div> to group them together or position them as one unit.",1],
+    ["&lt;br&gt;","A line break — it jumps to the next line WITHIN the same paragraph. It has no closing tag; you just write <br> wherever you want the break.",1],
+    ["href","The web address a link points to. It's an attribute you put inside an anchor tag, like <a href=\"https://example.com\">click me</a>.",1],
+    ["attribute","Extra info added inside a tag as name=\"value\" — for example class=\"card\" or href=\"...\". Attributes configure how an element behaves or looks.",1],
+    [".card { }","A CSS rule. The '.card' part selects every element with class=\"card\"; the { } holds the style changes (color, spacing, and so on) applied to all of them.",2],
+    ["padding","In CSS, the space INSIDE an element, between its content and its border. (Margin is the space OUTSIDE the border — the two get mixed up constantly.)",2],
+    ["flexbox","A CSS layout tool. Put display:flex on a container and its children line up in a row (or a column) that you can space out and align with simple rules.",2],
+    ["const","In JavaScript, declares a value that won't be reassigned. Use const by default; switch to 'let' only when the value genuinely needs to change later.",3],
+    ["===","'Is exactly equal to?' in JavaScript. It compares both the value AND its type and gives back true or false. Always prefer it over the looser == .",3],
+    ["function","A reusable block of code you name once and 'call' whenever you need it — like a saved recipe. It can take inputs and hand back a result using 'return'.",3],
+    [".map()","A JavaScript array method that builds a NEW list by transforming each item — for example turning a list of names into a list of HTML rows to show on the page.",3],
+    ["querySelector","A JavaScript command that grabs the first element on the page matching a CSS selector, so your code can read it or change it.",4],
+    ["localStorage","A small storage box built into the browser that remembers data on THIS device even after the tab closes. Good for preferences; it isn't shared between devices.",4],
+    ["await","In JavaScript, 'pause here until this finishes before moving on.' Used for slow things like fetching data from a server, so you work with the real result, not an empty placeholder.",5],
+    ["Supabase","A hosted back-end service — a database, user logins, and file storage you reach over the internet. It's what lets a website save data that outlives a single visit.",5],
+    ["RLS","Row Level Security in Supabase: rules that decide which rows each logged-in user is allowed to see or change. It's how you keep one user's data private from another's.",5],
+    ["GitHub Pages","A free service that turns an index.html in a GitHub repository into a live, public website at your own web address.",5]
+  ];
+  function warmCards(){
+    var ph=phaseOf(S.week).n, cap=Math.max(1,ph+1);
+    var pool=CARDS.filter(function(c){return (c[2]||1)<=cap;});
+    if(pool.length<3)pool=CARDS.slice();
+    return pool.sort(function(){return Math.random()-.5;}).slice(0,3);
+  }
 
   /* ===== training grounds ===== */
   var GROUNDS=[
@@ -974,7 +1020,7 @@
   function td(dt){dt=dt||new Date();return dt.getFullYear()+"-"+(dt.getMonth()+1)+"-"+dt.getDate();}
   function yd(){var d=new Date();d.setDate(d.getDate()-1);return td(d);}
   function load(){try{var r=localStorage.getItem("codeschool2");if(r){S=JSON.parse(r);return;}}catch(e){LS=false;}
-    S={week:0,day:1,done:0,streak:0,last:null,cleared:0,xp:0,forgeStep:0,forgeWin:false,loggedIn:false,theme:null,device:null,hist:[]};}
+    S={week:0,day:1,done:0,streak:0,last:null,cleared:0,xp:0,forgeStep:0,forgeWin:false,loggedIn:false,theme:null,device:null,editor:"practice",hist:[]};}
   function save(){try{localStorage.setItem("codeschool2",JSON.stringify(S));}catch(e){LS=false;}
     if(cloud&&sbUser){clearTimeout(syncT);syncT=setTimeout(cloudPush,900);}}
   load();
@@ -998,6 +1044,7 @@
     document.querySelectorAll("#nav .nav-link").forEach(function(b){
       b.classList.toggle("on",b.dataset.go===v||(v==="session"&&b.dataset.go==="home"));});
     try{if(v!=="login")location.hash=v;}catch(e){}
+    if(typeof updatePill==="function")updatePill();
     scrollTo(0,0);
   }
   document.querySelectorAll("[data-go]").forEach(function(b){
@@ -1083,28 +1130,49 @@
   }
 
   /* ===== session + timer ===== */
-  var DUR=15*60,left=DUR,tick=null,running=false,fcards=[],fi=0;
-  function fmt(s){var m=Math.floor(s/60),ss=s%60;return m+":"+(ss<10?"0":"")+ss;}
-  function paint(){$("#clock").textContent=fmt(left);$("#clock").classList.toggle("low",left<=60);$("#tfill").style.width=(left/DUR*100)+"%";}
-  function stopT(){running=false;clearInterval(tick);tick=null;$("#playBtn").textContent="Resume";}
-  function startT(){if(running)return;running=true;$("#playBtn").textContent="Pause";
-    tick=setInterval(function(){left--;if(left<=0){left=0;paint();stopT();$("#playBtn").textContent="Time's up";toast("15 minutes done — nice work");return;}paint();},1000);}
+  var DUR=15*60,left=DUR,tick=null,running=false,tEnd=0,sessActive=false,fcards=[],fi=0;
+  function fmtClock(s){var m=Math.floor(s/60),ss=s%60;return m+":"+(ss<10?"0":"")+ss;}
+  function paint(){$("#clock").textContent=fmtClock(left);$("#clock").classList.toggle("low",left<=60);$("#tfill").style.width=(left/DUR*100)+"%";updatePill();}
+  function updatePill(){ var p=$("#timerPill"); if(!p)return;
+    var showIt=sessActive && $("#view-session").hidden;
+    p.hidden=!showIt;
+    if(showIt){$("#pillTime").textContent=fmtClock(left);$("#pillLabel").textContent=(left<=0?"time's up":running?"running · tap to return":"paused · tap to return");}
+  }
+  function stopT(){running=false;clearInterval(tick);tick=null;$("#playBtn").textContent="Resume";updatePill();}
+  // timestamp-based so it keeps counting accurately even when you leave the page
+  function startT(){if(running)return;running=true;$("#playBtn").textContent="Pause";tEnd=Date.now()+left*1000;
+    tick=setInterval(function(){left=Math.max(0,Math.round((tEnd-Date.now())/1000));
+      if(left<=0){left=0;paint();stopT();$("#playBtn").textContent="Time's up";toast("15 minutes done — nice work");return;}
+      paint();},250);}
   $("#playBtn").addEventListener("click",function(){running?stopT():startT();});
   $("#resetTimer").addEventListener("click",function(){stopT();left=DUR;paint();$("#playBtn").textContent="Start";});
+  $("#timerPill").addEventListener("click",function(){show("session");paint();});
 
   function renderFlash(){var c=fcards[fi];$("#flash").classList.remove("flipped");$("#fq").innerHTML=c[0];$("#fa").textContent=c[1];$("#fcount").textContent=(fi+1)+" / "+fcards.length;}
   $("#flash").addEventListener("click",function(){$("#flash").classList.toggle("flipped");});
   $("#fnext").addEventListener("click",function(e){e.stopPropagation();fi=(fi+1)%fcards.length;renderFlash();});
   $("#fprev").addEventListener("click",function(e){e.stopPropagation();fi=(fi-1+fcards.length)%fcards.length;renderFlash();});
 
+  function wsHintText(){
+    return S.editor==="vscode"
+      ? "You picked VS Code — do the hands-on there and keep it open next to this page; save, then refresh your browser to see changes. (For quick JavaScript drills, the Practice tab still runs fastest.)"
+      : "Using the in-site Practice tab — runs instantly, no setup, works on any device. The timer pill keeps your countdown going while you're over there.";
+  }
+  function applyWorkspace(){
+    if(!S.editor)S.editor="practice";
+    document.querySelectorAll(".wsbtn").forEach(function(b){b.classList.toggle("on",b.dataset.ws===S.editor);});
+    var h=$("#wsHint"); if(h)h.textContent=wsHintText();
+  }
+  document.querySelectorAll(".wsbtn").forEach(function(b){b.addEventListener("click",function(){S.editor=b.dataset.ws;save();applyWorkspace();});});
   function openSession(){
     var L=lesson(S.week,S.day);
     $("#sessTag").textContent="W"+S.week+" · D"+S.day;
     $("#sessTitle").textContent=L.title; $("#segTeach").textContent=L.teach; $("#segDo").textContent=L.doit;
     $("#segExit").textContent="In one sentence: what did “"+L.title+"” do?"; $("#exitBox").value="";
-    fcards=CARDS.slice().sort(function(){return Math.random()-.5}).slice(0,3); fi=0; renderFlash();
-    stopT(); left=DUR; paint(); $("#playBtn").textContent="Start";
+    fcards=warmCards(); fi=0; renderFlash();
+    stopT(); left=DUR; sessActive=true; paint(); $("#playBtn").textContent="Start";
     $("#sessWork").hidden=false; $("#sessDone").hidden=true;
+    applyWorkspace();
     refreshNeedBanner();
     show("session");
   }
@@ -1116,7 +1184,7 @@
     if(S.day<dmax){S.day++;} else if(S.week<56){S.day=1;S.week++;}
     var t=td();
     if(S.last!==t){S.streak=(S.last===yd())?S.streak+1:1;S.last=t;}
-    recordDone(); save(); addXp(20); stopT();
+    recordDone(); save(); addXp(20); sessActive=false; stopT();
     $("#doneMsg").textContent="+20 XP · streak "+S.streak+" day"+(S.streak===1?"":"s")+". Next up — W"+S.week+" · D"+S.day+".";
     $("#sessWork").hidden=true; $("#sessDone").hidden=false; scrollTo(0,0);
     renderHome();
@@ -1530,7 +1598,7 @@
 
   /* ===== reset ===== */
   $("#resetBtn").addEventListener("click",function(){
-    S={week:0,day:1,done:0,streak:0,last:null,cleared:S.cleared,xp:S.xp,forgeStep:0,forgeWin:false,loggedIn:true,theme:S.theme,device:S.device,hist:[]};
+    S={week:0,day:1,done:0,streak:0,last:null,cleared:S.cleared,xp:S.xp,forgeStep:0,forgeWin:false,loggedIn:true,theme:S.theme,device:S.device,editor:S.editor,hist:[]};
     save();renderHome();show("home");toast("Progress reset to Week 0");
   });
 
