@@ -803,7 +803,7 @@
       <div class="pg-ctrl"><button class="btn" id="pgRun" style="width:auto">Run ▶</button><button class="lbtn" id="pgClear">Clear</button></div>
       <div class="labout" id="pgOut"></div>
     </div>
-    <div class="sync-note">This whole site opens on any device — just use the link. One catch for now: each device remembers its own progress. Want your streak and XP to follow you across phone, Mac and PC behind one password? That's the login step — just ask and I'll wire it up.</div>
+    <div class="sync-note" id="syncNote"></div>
     <details class="how" style="margin-top:14px">
       <summary>Setup guide — the desktop tools (optional, do it on your PC when ready)
         <svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
@@ -1535,6 +1535,12 @@
   function pgUpd(){var ta=$("#pgArea"),n=ta.value.split("\n").length,g="";for(var i=1;i<=n;i++)g+=i+"\n";$("#pgGutter").textContent=g;}
   var pgInit=false;
   function renderPractice(){
+    var sn=$("#syncNote");
+    if(sn)sn.textContent = (cloud&&sbUser)
+      ? "You're logged in — your streak, XP and progress sync to every device you log into. Open this site on your phone or another computer, log in with the same email, and you'll pick up right where you left off."
+      : (cloudReady()
+        ? "Log in (top of the app) and your progress syncs across every device. Until you're logged in, it's saved on this device only."
+        : "Progress saves on this device's browser only. Log in once that's set up and it'll follow you across phone, Mac and PC.");
     if(pgInit)return; pgInit=true;
     $("#pgChips").innerHTML=PGSNIP.map(function(s,i){return '<button class="chip" data-pi="'+i+'">'+s[0]+'</button>';}).join("");
     $("#pgChips").querySelectorAll(".chip").forEach(function(b){b.addEventListener("click",function(){var s=PGSNIP[+b.dataset.pi];$("#pgArea").value=s[1];pgUpd();$("#pgOut").textContent="";$("#pgOut").className="labout";});});
