@@ -1038,7 +1038,9 @@
 
   /* ===== views ===== */
   var VIEWS=["login","home","session","practice","build","skills","grounds","map","blueprint"];
+  var curView="home";
   function show(v){
+    curView=v;
     VIEWS.forEach(function(x){$("#view-"+x).hidden=(x!==v);});
     $("#nav").hidden=(v==="login");
     document.querySelectorAll("#nav .nav-link").forEach(function(b){
@@ -1134,7 +1136,7 @@
   function fmtClock(s){var m=Math.floor(s/60),ss=s%60;return m+":"+(ss<10?"0":"")+ss;}
   function paint(){$("#clock").textContent=fmtClock(left);$("#clock").classList.toggle("low",left<=60);$("#tfill").style.width=(left/DUR*100)+"%";updatePill();}
   function updatePill(){ var p=$("#timerPill"); if(!p)return;
-    var showIt=sessActive && $("#view-session").hidden;
+    var showIt=sessActive && curView!=="session";
     p.hidden=!showIt;
     if(showIt){$("#pillTime").textContent=fmtClock(left);$("#pillLabel").textContent=(left<=0?"time's up":running?"running · tap to return":"paused · tap to return");}
   }
@@ -1147,6 +1149,12 @@
   $("#playBtn").addEventListener("click",function(){running?stopT():startT();});
   $("#resetTimer").addEventListener("click",function(){stopT();left=DUR;paint();$("#playBtn").textContent="Start";});
   $("#timerPill").addEventListener("click",function(){show("session");paint();});
+  // Browsers throttle timers in background tabs, so recompute from the real
+  // clock whenever this tab becomes visible/focused again — no more "frozen" time.
+  function resync(){ if(!running)return; left=Math.max(0,Math.round((tEnd-Date.now())/1000));
+    if(left<=0){left=0;paint();stopT();$("#playBtn").textContent="Time's up";} else paint(); }
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden)resync(); });
+  window.addEventListener("focus",resync);
 
   function renderFlash(){var c=fcards[fi];$("#flash").classList.remove("flipped");$("#fq").innerHTML=c[0];$("#fa").textContent=c[1];$("#fcount").textContent=(fi+1)+" / "+fcards.length;}
   $("#flash").addEventListener("click",function(){$("#flash").classList.toggle("flipped");});
@@ -1155,7 +1163,7 @@
 
   function wsHintText(){
     return S.editor==="vscode"
-      ? "You picked VS Code — do the hands-on there and keep it open next to this page; save, then refresh your browser to see changes. (For quick JavaScript drills, the Practice tab still runs fastest.)"
+      ? "VS Code is for building web pages: save your .html and refresh the browser to see it. It has no “Run” button for loose JavaScript, though — to run a console.log, use the Practice tab (instant) or the browser console (F12). Keep VS Code open next to this page."
       : "Using the in-site Practice tab — runs instantly, no setup, works on any device. The timer pill keeps your countdown going while you're over there.";
   }
   function applyWorkspace(){
