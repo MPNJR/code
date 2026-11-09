@@ -207,6 +207,15 @@
   .seg .shead h3{font-size:1rem}
   .seg .shead .tm{margin-left:auto;font-family:var(--fmono);font-size:.7rem;color:var(--faint)}
   .seg p{color:var(--ink);font-size:.92rem}
+  .lessonbody{color:var(--ink);font-size:.92rem;line-height:1.6}
+  .lessonbody p{margin:0 0 10px}
+  .lessonbody p:last-child{margin-bottom:0}
+  .lessonbody b{color:var(--ink);font-weight:600}
+  .lessonbody code{font-family:var(--fmono);font-size:.86em;background:var(--surface-2);padding:1px 5px;
+    border-radius:5px;color:var(--accent-ink)}
+  pre.lcode{background:var(--code-bg);color:#dbe7ff;border:1px solid var(--line-strong);border-left:3px solid var(--accent);
+    border-radius:10px;padding:12px 13px;margin:0 0 10px;overflow-x:auto;font-family:var(--fmono);
+    font-size:.82rem;line-height:1.55;white-space:pre}
   .seg .hint{color:var(--muted);font-size:.85rem;margin-top:6px}
 
   .flash{perspective:1000px}
@@ -688,13 +697,13 @@
 
       <div class="card seg">
         <div class="shead"><span class="n">2</span><h3>New idea</h3><span class="tm">7 min · learn</span></div>
-        <p id="segTeach">—</p>
+        <div class="lessonbody" id="segTeach">—</div>
         <p class="hint">Watch the demo, then say it back in your own words.</p>
       </div>
 
       <div class="card seg">
         <div class="shead"><span class="n">3</span><h3>Hands-on</h3><span class="tm">5 min · do</span></div>
-        <p id="segDo">—</p>
+        <div class="lessonbody" id="segDo">—</div>
         <div class="wspick"><span class="wslbl">Work in:</span>
           <button class="wsbtn" data-ws="practice">Practice tab</button>
           <button class="wsbtn" data-ws="vscode">My editor (VS Code)</button>
@@ -915,39 +924,102 @@
   ];
   var WEEKS={0:"Getting started",1:"What a website is",2:"Anatomy of HTML",3:"Links, images & boxes",4:"Tables & forms",5:"Reading real HTML",6:"Review + Checkpoint 1",7:"CSS basics",8:"The box model",9:"Flexbox",10:"Grid, positioning & variables",11:"Responsive + Checkpoint 2",12:"First JavaScript",13:"Operators & text",14:"Making decisions",15:"Functions, part 1",16:"Functions, part 2",17:"Arrays & loops + Checkpoint 3",18:"Objects",19:"The big array methods",20:"Reduce, chaining & JSON",21:"Dates & time",22:"Errors & debugging",23:"Review + Checkpoint 4",24:"The DOM",25:"Events",26:"Rendering lists",27:"Forms in JavaScript",28:"Timers & memory",29:"Asynchronous JavaScript",30:"Read your own app + Checkpoint 5",31:"Front end ↔ back end",32:"Databases & SQL, part 1",33:"SQL part 2 & table design",34:"Supabase from JavaScript",35:"Security: RLS & logins",36:"Realtime & storage + Checkpoint 6",37:"Supabase Edge Functions",38:"Cloudflare Workers",39:"The Housecall Pro API",40:"Reading other people's code",41:"Full-stack mini project + Checkpoint 7",42:"Git: save points",43:"GitHub",44:"The safe-change workflow",45:"Debugging like a pro",46:"Web security essentials",47:"Maintainable code + Checkpoint 8",48:"Capstone: plan",49:"Capstone: screens",50:"Capstone: database",51:"Capstone: make it work",52:"Capstone: connect to HCP",53:"Capstone: logins & live updates",54:"Capstone: ship it",55:"Capstone: bug bash",56:"Capstone: hand off + Final",57:"Terminal basics",58:"Linux files & permissions",59:"Text tools & shell scripts",60:"Networking, part 1",61:"Networking, part 2",62:"Review + Checkpoint 9",63:"First Python",64:"Data & functions",65:"Files & modules",66:"APIs with Python",67:"Automation",68:"Review + Checkpoint 10",69:"Lab setup & attacker mindset",70:"Injection",71:"Cross-site scripting",72:"Broken access control",73:"Auth & sessions",74:"Other common flaws",75:"API security",76:"Review + Checkpoint 11",77:"How an engagement works",78:"Recon & enumeration",79:"Exploitation basics",80:"Privilege escalation",81:"Active Directory intro",82:"Reporting",83:"Mock engagement",84:"Review + Checkpoint 12",85:"Portfolio",86:"Certifications",87:"Job search",88:"Interviews & network"};
 
+  // [title, summary, teachHTML, doitHTML] — summary is the one-liner on the Class
+  // card; teach/doit render as rich HTML in the session (paragraphs, code examples).
   var DAYS={
-    "0-1":["Write your first code — right here","No installs, any device. Open the Practice area in this site and run a real line of code.","Open Practice, type console.log(\"hi\") and tap Run. That's coding."],
-    "0-2":["Tour your school","See how the pieces fit: the daily Module, the Practice area to experiment, Training Grounds to break code, and Spark to build.","Tap through each tab once. That's the whole tour."],
-    "0-3":["Pro setup — optional, when you're ready","Developers use a desktop editor (VS Code). It's optional, and best done later on your home PC — not needed to learn.","Open the Setup Guide inside the Practice area and follow it on your PC whenever you want it. Phone and Mac lessons need none of it."],
-    "1-1":["What a website really is","Your browser asks a server for files and draws them. That round-trip is the whole game.","Type a site's URL and say each step out loud."],
-    "1-2":["The three languages","HTML is the framing, CSS the finishes, JavaScript the thermostat logic.","Point at a page and name which language does what you see."],
-    "1-3":["Files, folders & index.html","Every site has an index.html that loads first. GitHub Pages serves it automatically.","Find index.html in your Twin Tracker repo."],
-    "1-4":["Your first edit loop","Edit, save, refresh. That loop is how all web work feels.","Make hello.html, change a word, refresh to see it."],
-    "1-5":["Quiz 1 + View Source","Friday is a 10-question quiz plus a tiny build.","Right-click a site → View Source and skim it."],
-    "2-1":["Tags & elements","An opening tag, content, a closing tag. <p>Hi</p> is one element.","Write three paragraphs and a heading by hand."],
-    "2-2":["Attributes","Attributes are name=\"value\" pairs like href or class.","Add a class to each paragraph."],
-    "2-3":["The page skeleton","<!DOCTYPE html>, <html>, <head>, <body> — the frame every page sits in.","Type the skeleton from memory."],
-    "2-4":["Headings, lists & comments","h1–h6, ul/ol/li, and comments the computer ignores.","Build a nested list of your installs."],
-    "2-5":["Quiz 2 + label real HTML","Reading drill: label real code in plain English.","Label the first 10 lines of your tracker."],
-    "3-1":["Links","<a href> points somewhere. Relative paths stay in your site; absolute go elsewhere.","Link two of your pages together."],
-    "3-2":["Images","<img src> loads a picture; alt describes it. Paths like ../images/logo.png matter.","Add a logo with good alt text."],
-    "3-3":["div & span","The generic boxes everything is built from. div stacks; span sits inline.","Wrap a card in a div, style nothing yet."],
-    "3-4":["Meaningful tags","header, nav, main, footer say what a box is for.","Rewrite a page using real landmark tags."],
-    "3-5":["Quiz 3 + build","Build a one-page About NAGeo site.","Ship it in plain HTML, no CSS."]
+    "0-1":["Write your first code — right here",
+      "No installs needed — run your very first line of real code right in this site.",
+      "<p>Here's the good news: you don't need any setup to start coding. This site has a built-in <b>Practice area</b> — a real code editor that runs your code instantly, on your phone, Mac, or PC.</p><p>The command <code>console.log(...)</code> is how you tell a program to <i>print something out</i> so you can see it. Whatever you put inside the parentheses gets shown. Text goes in quotes:</p><pre class='lcode'>console.log(\"hi\")</pre><p>That one line is a complete, working program. When it runs, it prints <code>hi</code>. That's genuinely what coding is — you give the computer an instruction, and you see what it does.</p>",
+      "<p>Open the <b>Practice</b> tab, type <code>console.log(\"hi\")</code>, and hit <b>Run</b>. You'll see <code>hi</code> appear in the output box under the editor.</p><p>Then change <code>\"hi\"</code> to your name and run it again. That's it — you're coding.</p>"],
+    "0-2":["Tour your school",
+      "A two-minute tour of how this whole site fits together.",
+      "<p>Before diving in, it helps to know your tools. This site has a few areas, each with a job:</p><p>• <b>Class</b> — your daily 15-minute lesson (you're here now).<br>• <b>Practice</b> — a scratchpad to run code anytime, no stakes.<br>• <b>Build</b> — hands-on projects where you code something real.<br>• <b>Grounds</b> — quick puzzles to find bugs and security holes.<br>• <b>Skills / Blueprint / Map</b> — see your progress and where it all leads.</p><p>You'll spend most of your time in <b>Class</b> and <b>Practice</b>. The rest are there when you want them.</p>",
+      "<p>Tap through each tab across the top once — Class, Practice, Build, Skills, Grounds, Map, Blueprint — just to see what's there. Don't do anything in them yet. That's the whole tour.</p>"],
+    "0-3":["Pro setup — optional, when you're ready",
+      "Set up the desktop developer tools on your PC — optional, and only when you're ready.",
+      "<p>Everything in this site runs in your browser, so you can learn the whole early curriculum with zero installs. Eventually, developers work in a <b>desktop code editor</b> — the standard is <b>VS Code</b> (free).</p><p>It gives you things the browser can't: a proper editor with many files open at once, a live preview of web pages, and tools that catch mistakes as you type. It's a one-time setup, best done on your home PC when you have a few minutes.</p><p>You do <b>not</b> need it to keep learning — phone and tablet lessons never require it.</p>",
+      "<p>If you're on your PC and want to level up your tools, open the <b>Setup Guide</b> inside the Practice tab and follow the four steps. Otherwise skip this — you can do it any day.</p>"],
+    "1-1":["What a website really is",
+      "What actually happens when you open a web page.",
+      "<p>When you type an address like <code>google.com</code> and hit Enter, here's the real sequence: your <b>browser</b> (Chrome, Safari) sends a request across the internet to a <b>server</b> — a computer somewhere that stores the website's files. The server sends those files back, and your browser <i>draws</i> them into the page you see.</p><p>That request-and-response round trip is the heart of the whole web. Every page, every click, every app you use works this way underneath.</p><p>The files the server sends are mostly three kinds — and the next lesson is about what each one does.</p>",
+      "<p>Open any website, then say the trip out loud in your own words: “my browser asked a server for files, the server sent them back, the browser drew the page.” Simple as that.</p>"],
+    "1-2":["The three languages",
+      "The three languages every web page is built from, and what each does.",
+      "<p>Almost every website is built from three languages that work together. A house analogy makes it click:</p><p>• <b>HTML</b> is the <i>framing and structure</i> — the walls, rooms, and what goes where. It decides what exists on the page: headings, paragraphs, buttons, images.<br>• <b>CSS</b> is the <i>finishes</i> — the paint, trim, and layout. It decides how things look: colors, fonts, spacing, position.<br>• <b>JavaScript</b> is the <i>electricity and controls</i> — it makes things <i>do</i> stuff: respond to clicks, update live, run logic.</p><p>You'll learn them in that order, because that's how a page is built: structure first, then looks, then behavior.</p>",
+      "<p>Look at any website and point at things: the words and images are <b>HTML</b>, the colors and layout are <b>CSS</b>, and anything that reacts when you click is <b>JavaScript</b>. Name three things and which language makes each.</p>"],
+    "1-3":["Files, folders & index.html",
+      "How a website's files are organized, and why index.html is special.",
+      "<p>A website is just a folder of files sitting on a server. The most important one is <code>index.html</code> — it's the <b>front door</b>. When someone visits your site's address, the server automatically hands them <code>index.html</code> first, without them having to name it.</p><p>That's why your Code School site is a single <code>index.html</code>, and why GitHub Pages serves it the moment someone opens your link. Other files — images, extra pages — live alongside it in the same folder.</p><p>Filenames and extensions matter: the <code>.html</code> ending is what tells the browser “treat this as a web page.”</p>",
+      "<p>Open your Twin Tracker's GitHub repo (or any site's folder) and find the <code>index.html</code>. That's the file that loads first. Notice what else sits next to it.</p>"],
+    "1-4":["Your first edit loop",
+      "The edit → save → refresh loop that all web work is built on.",
+      "<p>Building a web page is a tight loop you'll repeat thousands of times:</p><p><b>1. Edit</b> — change the code.<br><b>2. Save</b> — write it to the file (Ctrl+S).<br><b>3. Refresh</b> — reload the page to see your change.</p><p>That's it. Make a small change, see the result, make another. Live Server (the VS Code extension) even does the refresh for you on save. This fast feedback — change something, instantly see it — is what makes building for the web feel good.</p>",
+      "<p>Open your <code>hello.html</code>, change a word inside your <code>&lt;h1&gt;</code>, save (Ctrl+S), and refresh the browser (or watch Live Server do it). See the change? That's the loop you'll live in.</p>"],
+    "1-5":["Quiz 1 + View Source",
+      "Your first Friday quiz, plus peeking at any site's real code.",
+      "<p>Fridays are a quick <b>10-question quiz</b> on the week plus a tiny build — a checkpoint to make sure it stuck, not a test to stress over.</p><p>Here's a trick that shows how open the web is: on almost any website you can <b>right-click → View Source</b> and see the actual HTML the browser received. Every site you admire is readable this way. It looks like a lot at first — that's fine. You're not reading every line, just spotting the tags you now recognize.</p>",
+      "<p>Right-click any website and choose <b>View Source</b> (or View Page Source). Skim it and spot a few tags you know — <code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;a&gt;</code>. Don't try to understand all of it.</p>"],
+    "2-1":["Tags & elements",
+      "The building block of all HTML: the tag.",
+      "<p>HTML is made of <b>tags</b> — a keyword wrapped in angle brackets. Most come in pairs: an <b>opening tag</b> and a <b>closing tag</b> (the closing one has a slash), with your content in between:</p><pre class='lcode'>&lt;p&gt;Hello there&lt;/p&gt;</pre><p>The opening <code>&lt;p&gt;</code>, the text, and the closing <code>&lt;/p&gt;</code> together make one <b>element</b> — here, a paragraph. The browser reads that and shows “Hello there” as a paragraph.</p><p>Nearly everything on a page is an element: headings, paragraphs, links, images, buttons. Once you can spot the open/close pairs, HTML stops looking like gibberish.</p>",
+      "<p>In your <code>hello.html</code>, write three separate <code>&lt;p&gt;...&lt;/p&gt;</code> paragraphs and one <code>&lt;h1&gt;...&lt;/h1&gt;</code> heading, each in your own words. Save and refresh, and watch how each one lands on the page.</p>"],
+    "2-2":["Attributes",
+      "How to give a tag extra settings with attributes.",
+      "<p>Tags can carry extra information called <b>attributes</b>. An attribute lives inside the opening tag and is written as <code>name=\"value\"</code>:</p><pre class='lcode'>&lt;p class=\"intro\"&gt;Hello&lt;/p&gt;</pre><p>Here <code>class=\"intro\"</code> labels this paragraph so you can style or target it later. You'll meet a lot of attributes — <code>href</code> (a link's destination), <code>src</code> (an image's file), <code>id</code> (a unique name), <code>class</code> (a reusable label).</p><p>The pattern never changes: <code>name=\"value\"</code>, inside the opening tag, separated by spaces when there's more than one.</p>",
+      "<p>Add a <code>class=\"something\"</code> attribute to each of your paragraphs. It won't change how they look yet — but you've labeled them, which is exactly what CSS will use next week.</p>"],
+    "2-3":["The page skeleton",
+      "The standard frame every HTML page sits inside.",
+      "<p>Every real web page shares the same outer skeleton. You'll type it so often it becomes muscle memory:</p><pre class='lcode'>&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n  &lt;head&gt;\n    &lt;title&gt;My Page&lt;/title&gt;\n  &lt;/head&gt;\n  &lt;body&gt;\n    &lt;h1&gt;Hello&lt;/h1&gt;\n  &lt;/body&gt;\n&lt;/html&gt;</pre><p>• <code>&lt;!DOCTYPE html&gt;</code> — “this is a modern web page.”<br>• <code>&lt;html&gt;</code> — wraps everything.<br>• <code>&lt;head&gt;</code> — behind-the-scenes info; the <code>&lt;title&gt;</code> is the browser-tab name.<br>• <code>&lt;body&gt;</code> — everything the visitor actually sees.</p>",
+      "<p>In a fresh file, type the whole skeleton from memory (peek if you need to). Put an <code>&lt;h1&gt;</code> inside the <code>&lt;body&gt;</code>, save, and open it. Notice the title you set shows up on the browser tab.</p>"],
+    "2-4":["Headings, lists & comments",
+      "Headings, bulleted and numbered lists, and notes to yourself.",
+      "<p>A few everyday elements you'll use constantly:</p><p>• <b>Headings</b> come in six sizes, <code>&lt;h1&gt;</code> (biggest) down to <code>&lt;h6&gt;</code>. Use them in order of importance, like an outline.<br>• <b>Lists:</b> <code>&lt;ul&gt;</code> makes a bulleted list, <code>&lt;ol&gt;</code> a numbered one, and each item inside is an <code>&lt;li&gt;</code>:</p><pre class='lcode'>&lt;ul&gt;\n  &lt;li&gt;Install&lt;/li&gt;\n  &lt;li&gt;Inspection&lt;/li&gt;\n&lt;/ul&gt;</pre><p>• <b>Comments:</b> <code>&lt;!-- like this --&gt;</code> are notes the browser ignores — for leaving yourself reminders in the code.</p>",
+      "<p>Build a bulleted list of a few NAGeo install steps with <code>&lt;ul&gt;</code> and <code>&lt;li&gt;</code>, add an <code>&lt;h2&gt;</code> heading above it, and leave yourself a <code>&lt;!-- comment --&gt;</code>. Save and view it.</p>"],
+    "2-5":["Quiz 2 + label real HTML",
+      "Friday quiz, plus reading real HTML and naming each part.",
+      "<p>The fastest way to get fluent at reading code is to <b>narrate it</b> — point at each line and say what it does in plain English. That's the skill that turns a wall of tags into something you understand at a glance.</p><p>After the quiz, you'll do a reading drill: take real HTML and label each tag out loud — “that's a div grouping things, that's a paragraph, that's a link pointing to…” You don't have to know every attribute; just name the shapes you recognize.</p>",
+      "<p>Open your Twin Tracker's code (or View Source on any site) and read the first 10 lines, saying what each tag does. Anything you can't name is a note for a future lesson.</p>"],
+    "3-1":["Links",
+      "How to connect pages together with links.",
+      "<p>Links are what make the web a <i>web</i>. The link tag is <code>&lt;a&gt;</code> (short for “anchor”), and its <code>href</code> attribute says where it goes:</p><pre class='lcode'>&lt;a href=\"about.html\"&gt;About us&lt;/a&gt;</pre><p>The text between the tags is what the visitor clicks. Two kinds of destination:<br>• <b>Relative</b> — another file in your own site, like <code>about.html</code>.<br>• <b>Absolute</b> — a full address elsewhere, like <code>https://google.com</code>.</p><p>Add <code>target=\"_blank\"</code> and the link opens in a new tab.</p>",
+      "<p>Make a second file, <code>about.html</code>, with a heading. Then in <code>hello.html</code> add <code>&lt;a href=\"about.html\"&gt;Go to About&lt;/a&gt;</code>, save both, and click your way between the two pages.</p>"],
+    "3-2":["Images",
+      "Putting pictures on a page, and why the alt text matters.",
+      "<p>Images use the <code>&lt;img&gt;</code> tag. It's special — no closing tag — and it needs two attributes:</p><pre class='lcode'>&lt;img src=\"logo.png\" alt=\"NAGeo logo\"&gt;</pre><p>• <code>src</code> — the file to show. A path like <code>images/logo.png</code> means “the logo.png inside the images folder,” and <code>../</code> means “go up one folder.”<br>• <code>alt</code> — a text description, shown if the image fails to load and read aloud by screen readers. Always write it; it's good practice and part of accessibility.</p>",
+      "<p>Drop any image into your <code>code</code> folder, then show it with <code>&lt;img src=\"yourfile.png\" alt=\"a short description\"&gt;</code>. Save and refresh. Try a wrong filename on purpose and watch the alt text appear instead.</p>"],
+    "3-3":["div & span",
+      "The two generic containers you'll group everything with.",
+      "<p>Sometimes you just need a box to group things, with no special meaning of its own. That's <code>&lt;div&gt;</code> and <code>&lt;span&gt;</code>.</p><p>• <code>&lt;div&gt;</code> is a <b>block</b> box: it stacks vertically and takes the full width, like a paragraph. Wrap related chunks in a div to lay them out or style them as a unit.<br>• <code>&lt;span&gt;</code> is an <b>inline</b> box: it sits inside a line of text without breaking it, for styling just a few words.</p><pre class='lcode'>&lt;div&gt;\n  &lt;p&gt;Price: &lt;span&gt;$50&lt;/span&gt;&lt;/p&gt;\n&lt;/div&gt;</pre><p>They do nothing visible on their own — they're containers you'll style with CSS next week.</p>",
+      "<p>Wrap two paragraphs in a single <code>&lt;div&gt;</code>, and wrap one word inside a paragraph in a <code>&lt;span&gt;</code>. Nothing looks different yet — that's expected. You've made containers to target later.</p>"],
+    "3-4":["Meaningful tags",
+      "Tags that describe what a section is for — better than plain divs.",
+      "<p>You <i>could</i> build a whole page from <code>&lt;div&gt;</code>s, but HTML gives you <b>meaningful</b> (semantic) tags that say what a section actually is:</p><p>• <code>&lt;header&gt;</code> — the top bar / intro.<br>• <code>&lt;nav&gt;</code> — the navigation links.<br>• <code>&lt;main&gt;</code> — the main content.<br>• <code>&lt;footer&gt;</code> — the bottom bar.</p><p>They work exactly like a div, but they <i>describe</i> the content. That helps screen readers, search engines, and — honestly — you, when you come back to your own code later and can tell what each part is.</p>",
+      "<p>Take a page you've built and swap the outer <code>&lt;div&gt;</code>s for <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, and <code>&lt;footer&gt;</code> where they fit. It'll look the same, but the structure now reads clearly.</p>"],
+    "3-5":["Quiz 3 + build",
+      "Friday quiz, then build a small real page start to finish.",
+      "<p>Time to put the week together. After the quiz, you'll build a complete little page on your own — a one-page “About NAGeo” site using only what you've learned: the skeleton, headings, paragraphs, a list, a link, maybe an image, wrapped in meaningful tags.</p><p>No CSS yet — plain HTML. The goal isn't pretty; it's a page that's <i>structured correctly</i> and that you built and understand every line of.</p>",
+      "<p>Build <code>about.html</code>: a skeleton, an <code>&lt;h1&gt;</code> title, a couple of paragraphs about the company, a <code>&lt;ul&gt;</code> of services, and a link back to your home page — all inside <code>&lt;header&gt;</code>/<code>&lt;main&gt;</code>/<code>&lt;footer&gt;</code>. Ship it.</p>"]
   };
 
   var CPWEEK={6:1,11:1,17:1,23:1,30:1,36:1,41:1,47:1,62:1,68:1,76:1,84:1};
   function daysIn(w){return w===0?3:5;}
+  function stripHtml(h){var d=document.createElement("div");d.innerHTML=h||"";return (d.textContent||"").trim();}
   function lesson(w,d){
     var key=w+"-"+d, base=WEEKS[w]||("Week "+w);
-    if(DAYS[key])return {title:DAYS[key][0],teach:DAYS[key][1],doit:DAYS[key][2],week:base};
+    if(DAYS[key])return {title:DAYS[key][0],summary:DAYS[key][1],teach:DAYS[key][2],doit:DAYS[key][3],week:base};
     var isFri=(d===5), cp=CPWEEK[w];
     if(cp&&d>=4)return{title:"Checkpoint "+(d===4?"A":"B"),week:base,
-      teach:d===4?"Reading exam: explain the code and predict the output.":"Build exam: make it from a short description.",
-      doit:d===4?"Closed book — walk me through each answer.":"MDN allowed, no AI. Then explain every line."};
+      summary:d===4?"Reading exam — explain code and predict the output.":"Build exam — make it from a short description.",
+      teach:d===4
+        ?"<p>This is a <b>reading checkpoint</b>. I'll show you code from the weeks behind this one, and you explain what each part does and predict what it outputs — out loud, in plain English. It proves you can <i>read</i> code, not just recognize it.</p><p>Closed book, no AI. Missing some is fine — it just shows us what to review.</p>"
+        :"<p>This is a <b>build checkpoint</b>. You'll make something from a short description, from scratch. MDN (the reference site) is allowed; AI is not. Then you walk me through every line so we know you own it.</p>",
+      doit:d===4?"<p>Closed book. For each snippet I show you, say what it does and call the output.</p>":"<p>Build the thing from the description, then explain every line back to me.</p>"};
     return{title:base+" · Day "+d,week:base,
-      teach:isFri?"Friday: a 10-question quiz, then a small build on "+base.toLowerCase()+".":"Today's piece of “"+base+"”. I demo it, you try it.",
-      doit:isFri?"Take the quiz, then build the Friday exercise.":"Apply it to a short exercise in your week-"+w+" folder."};
+      summary:isFri?("Friday: a 10-question quiz, then a small build on "+base.toLowerCase()+"."):("A piece of “"+base+"” — I explain it, then you try it."),
+      teach:isFri
+        ?"<p>Friday is a <b>10-question quiz</b> on this week, then a small hands-on build to cement it. Treat the quiz as a checkpoint, not a test — whatever you miss just tells us what to go back over.</p>"
+        :"<p>Today covers a piece of <b>"+base+"</b>. We go concept first — what it is and why it matters — then you try it yourself in a short exercise.</p><p>Deep write-ups for this week are still being filled in. Want the full, descriptive version of this lesson now? Ask me in chat to expand it and I'll write it out.</p>",
+      doit:isFri?"<p>Take the 10-question quiz, then do the Friday build exercise.</p>":"<p>Apply today's idea in a short exercise in your <code>week-"+w+"</code> folder. Keep it small — one focused thing.</p>"};
   }
 
   // [front, back, level] — level gates which cards show by where you are, and
@@ -1120,7 +1192,7 @@
     $("#todayTag").textContent="W"+S.week+" · D"+S.day;
     $("#friTag").hidden=!(S.day===5&&!CPWEEK[S.week]&&S.week>=1);
     $("#todayWeek").textContent=L.week; $("#todayTitle").textContent=L.title;
-    $("#todayTeach").textContent=L.teach; $("#s2").textContent=L.teach; $("#s3").textContent=L.doit;
+    $("#todayTeach").textContent=L.summary; $("#s2").textContent=L.summary; $("#s3").textContent=stripHtml(L.doit);
     var li=levelInfo(); $("#stLevel").textContent="Lv "+li.L; $("#stLevel").nextElementSibling.textContent=li.rank;
     var nm=nextMilestone(),el=$("#nextMs");
     el.hidden=false;
@@ -1175,7 +1247,7 @@
   function openSession(){
     var L=lesson(S.week,S.day);
     $("#sessTag").textContent="W"+S.week+" · D"+S.day;
-    $("#sessTitle").textContent=L.title; $("#segTeach").textContent=L.teach; $("#segDo").textContent=L.doit;
+    $("#sessTitle").textContent=L.title; $("#segTeach").innerHTML=L.teach; $("#segDo").innerHTML=L.doit;
     $("#segExit").textContent="In one sentence: what did “"+L.title+"” do?"; $("#exitBox").value="";
     fcards=warmCards(); fi=0; renderFlash();
     stopT(); left=DUR; sessActive=true; paint(); $("#playBtn").textContent="Start";
